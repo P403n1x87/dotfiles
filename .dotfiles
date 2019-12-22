@@ -1,0 +1,47 @@
+# This script is based on
+# https://www.atlassian.com/git/tutorials/dotfiles
+
+set -e
+set -u
+
+DOTFILES_REPO=$HOME/.dotfiles.git
+DOTFILES_BAK=$HOME/.dotfiles.bak
+
+# Export the dotfiles command.
+#
+# This function wraps around git allows you managing dotfiles easily.
+function dotfiles {
+   /usr/bin/git --git-dir=$DOTFILES_REPO --work-tree=$HOME $@
+}
+
+# Backup existing dotfiles
+#
+# We make a backup copy of all the dotfiles that would be overwritten by the
+# checkout command. This step is also required for otherwise the command
+# is bound to fail if some files exists already within the Home folder.
+mkdir -p $DOTFILES_BAK
+
+# Try to checkout the dotfiles into the Home folder.
+function dotfiles_checkout {
+    output="`dotfiles checkout 2>&1`"
+    if [ $? = 0 ]; then
+        echo "Dotfiles checked out successfully into $HOME"
+    else
+        if [ $1 = 1 ]; then
+            echo "FATAL: Something went wrong while checking out."
+            echo "Quite likely, I wasn't able to move all the existing dotfiles"
+            echo "into the backup location $DOTFILES_BAK."
+            exit 1
+        fi
+        echo "Backing up pre-existing dot files into $DOTFILES_BAK"
+        echo $output | egrep "\s+\." | awk {'print $1'} | xargs -I{} mv {} $DOTFILES_BAK/{}
+        dotfiles_checkout 1  # Avoid infinite recursion
+    fi
+}
+
+dotfiles_checkout 0
+dotfiles config --local status.showUntrackedFiles no
+
+# Cleanup
+test -f $HOME/README.md && rm $HOME/README.md
+test -f $HOME/.dotfiles && rm $HOME/.dotfiles
