@@ -1,8 +1,7 @@
 # This script is based on
 # https://www.atlassian.com/git/tutorials/dotfiles
 
-set -e
-set -u
+set -eu
 
 DOTFILES_REPO=$HOME/.dotfiles.git
 DOTFILES_BAK=$HOME/.dotfiles.bak
@@ -29,12 +28,12 @@ function dotfiles_checkout {
     else
         if [ $1 = 1 ]; then
             echo "FATAL: Something went wrong while checking out."
-            echo "Quite likely, I wasn't able to move all the existing dotfiles"
-            echo "into the backup location $DOTFILES_BAK."
+            echo "  Quite likely, I wasn't able to move all the existing dotfiles"
+            echo "  into the backup location $DOTFILES_BAK."
             exit 1
         fi
         echo "Backing up pre-existing dot files into $DOTFILES_BAK"
-        echo $output | egrep "\s+\." | awk {'print $1'} | xargs -I{} mv {} $DOTFILES_BAK/{}
+        echo "$output" | egrep "\s+\." | awk {'print $1'} | xargs -I{} mv {} $DOTFILES_BAK/{}
         dotfiles_checkout 1  # Avoid infinite recursion
     fi
 }
