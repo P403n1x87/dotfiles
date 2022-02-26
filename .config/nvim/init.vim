@@ -35,6 +35,9 @@ Plug 'vim-syntastic/syntastic'
 Plug 'majutsushi/tagbar'
 Plug 'enricobacis/vim-airline-clock'
 
+" Haskell
+Plug 'neovimhaskell/haskell-vim'
+
 call plug#end()
 
 " Airline
@@ -75,3 +78,6 @@ tmap <Esc>                    <C-\><C-n>
 
 nnoremap <M-PageUp>           :bprevious<CR>
 nnoremap <M-PageDown>         :bnext<CR>
+
+" C
+autocmd FileType c setlocal tabstop=2 expandtab shiftwidth=2 softtabstop=2
